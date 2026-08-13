@@ -1,0 +1,12 @@
+<button id="btnCor">Mudar Cor do Card</button>
+<div id="card" style="width: 100px; height: 100px; background-color: gray;"></div>
+<script>
+document.getElementById('btnCor').addEventListener('click', () => {
+fetch('http://localhost:3000/api/cor')
+.then(res => res.json())
+.then(dados => {
+document.getElementById('card').style.backgroundColor = dados.cor;
+})
+.catch(err => console.error('Erro de CORS ou conexão:', err));
+});
+</script>
