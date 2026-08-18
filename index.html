@@ -1,12 +1,44 @@
-<button id="btnCor">Mudar Cor do Card</button>
-<div id="card" style="width: 100px; height: 100px; background-color: gray;"></div>
+<!-- 1. Botões de controle e o card -->
+<button id="btnLogin">1. Fazer Login</button>
+<button id="btnCor">2. Mudar Cor do Card</button>
+
+<div id="card" style="width: 100px; height: 100px; background-color: gray; margin-top: 10px;"></div>
+<p id="status">Status: Não autenticado</p>
+
 <script>
-document.getElementById('btnCor').addEventListener('click', () => {
-fetch('http://localhost:3000/api/cor')
-.then(res => res.json())
-.then(dados => {
-document.getElementById('card').style.backgroundColor = dados.cor;
-})
-.catch(err => console.error('Erro de CORS ou conexão:', err));
-});
+  // Variável global para armazenar o token recebido no login
+  let tokenJWT = '';
+
+  // 1. Evento de clique para Fazer Login e obter o JWT
+  document.getElementById('btnLogin').addEventListener('click', () => {
+    fetch('http://localhost:3000/api/login', { method: 'POST' })
+      .then(res => res.json())
+      .then(dados => {
+        tokenJWT = dados.token;
+        document.getElementById('status').innerText = 'Status: Autenticado com Sucesso!';
+      })
+      .catch(err => {
+        console.error('Erro no Login:', err);
+        document.getElementById('status').innerText = 'Status: Erro ao autenticar';
+      });
+  });
+
+  // 2. Evento de clique para chamar a rota protegida enviando o JWT
+  document.getElementById('btnCor').addEventListener('click', () => {
+    fetch('http://localhost:3000/api/cor', {
+      method: 'GET',
+      headers: {
+        // Envia o token no formato padrão Bearer
+        'Authorization': 'Bearer ' + tokenJWT
+      }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Acesso negado ou token inválido');
+        return res.json();
+      })
+      .then(dados => {
+        document.getElementById('card').style.backgroundColor = dados.cor;
+      })
+      .catch(err => alert(err.message));
+  });
 </script>
